@@ -1632,38 +1632,46 @@
     }
 
     /* REVEAL */
-    .reveal {
-      opacity: 0;
+    .js-ready .reveal { opacity: 0;
       transform: translateY(40px);
       transition: opacity 0.8s ease, transform 0.8s ease;
+      animation: revealFallback 0.8s ease 1.5s forwards;
     }
 
-    .reveal.visible {
+    .js-ready .reveal.visible {
       opacity: 1;
       transform: translateY(0);
+      animation: none;
     }
 
-    .reveal-left {
-      opacity: 0;
+    .js-ready .reveal-left { opacity: 0;
       transform: translateX(-40px);
       transition: opacity 0.8s ease, transform 0.8s ease;
+      animation: revealFallback 0.8s ease 1.5s forwards;
     }
 
-    .reveal-left.visible {
+    .js-ready .reveal-left.visible {
       opacity: 1;
       transform: translateX(0);
+      animation: none;
     }
 
-    .reveal-right {
-      opacity: 0;
+    .js-ready .reveal-right { opacity: 0;
       transform: translateX(40px);
       transition: opacity 0.8s ease, transform 0.8s ease;
+      animation: revealFallback 0.8s ease 1.5s forwards;
     }
 
-    .reveal-right.visible {
+    .js-ready .reveal-right.visible {
       opacity: 1;
       transform: translateX(0);
+      animation: none;
     }
+
+    @keyframes revealFallback {
+      to { opacity: 1; transform: none; }
+    }
+
 
     .delay-1 {
       transition-delay: 0.1s;
@@ -1749,7 +1757,59 @@
         padding: 60px 20px 40px;
       }
     }
-  </style>
+  
+    /* HOW-IT-WORKS GOLD CARD */
+    .how-step.gold-card {
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+    .how-step.gold-card .step-num { color: rgba(13,13,13,0.18); }
+    .how-step.gold-card .step-icon { border-color: rgba(13,13,13,0.3); }
+    .how-step.gold-card .step-title { color: var(--dark); }
+    .how-step.gold-card .step-desc { color: rgba(13,13,13,0.7); }
+    .how-step.gold-card:hover { background: #e8c14d; border-color: #e8c14d; }
+
+    /* SOCIAL PROOF TOASTS */
+    .toast-container {
+      position: fixed; bottom: 32px; left: 32px;
+      z-index: 9000;
+      display: flex; flex-direction: column-reverse; gap: 12px;
+      pointer-events: none; max-width: 310px;
+    }
+    .sp-toast {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(13,13,13,0.93);
+      border: 1px solid rgba(212,168,67,0.28);
+      backdrop-filter: blur(20px);
+      padding: 12px 16px; border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+      opacity: 0;
+      transform: translateX(-20px) scale(0.96);
+      transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.16,1,0.3,1);
+      pointer-events: none; min-width: 260px;
+    }
+    .sp-toast.visible { opacity: 1; transform: translateX(0) scale(1); }
+    .sp-toast.hiding {
+      opacity: 0; transform: translateX(-12px) scale(0.97);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .sp-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--gold); color: var(--dark);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800;
+      font-family: 'Bebas Neue', sans-serif; flex-shrink: 0;
+    }
+    .sp-text { flex: 1; min-width: 0; }
+    .sp-name { font-size: 13px; font-weight: 700; color: var(--white); font-family: 'Cabinet Grotesk', sans-serif; }
+    .sp-action { font-size: 12px; color: rgba(245,240,232,0.58); font-family: 'Cabinet Grotesk', sans-serif; line-height: 1.4; margin-top: 1px; }
+    .sp-icon { font-size: 18px; flex-shrink: 0; }
+    .sp-live { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; flex-shrink: 0; animation: livePulse 1.5s ease-in-out infinite; }
+    @media (max-width: 600px) {
+      .toast-container { bottom: 16px; left: 10px; right: 10px; max-width: none; }
+      .sp-toast { min-width: unset; width: 100%; }
+    }
+</style>
 </head>
 
 <body>
@@ -1757,6 +1817,7 @@
   <canvas id="underwater-canvas"></canvas>
   <div class="cursor" id="cursor"></div>
   <div class="cursor-ring" id="cursorRing"></div>
+  <div class="toast-container" id="toastContainer"></div>
 
   <nav id="navbar">
     <a href="/" class="nav-left">
@@ -1815,7 +1876,7 @@
           <p class="step-desc">Pick a brand-sponsored fitness challenge. Walk, run, hit your step goal. The challenge
             starts the moment you do.</p>
         </div>
-        <div class="how-step reveal delay-2">
+        <div class="how-step gold-card reveal delay-2">
           <div class="step-num">02</div>
           <div class="step-icon">🔥</div>
           <div class="step-title">Track Your Progress</div>
@@ -2227,9 +2288,10 @@
             <h4>Company</h4>
             <ul>
               <li><a href="brands.html">For Brands</a></li>
-              <li><a href="/privacy.html">Privacy Policy</a></li>
-              <li><a href="mailto:support@dedoer.com">Contact Us</a></li>
-              <li><a href="mailto:partnerships@dedoer.com">Partnerships</a></li>
+              <li><a href="privacy.html">Privacy Policy</a></li>
+              <li><a href="delete-account.html">Delete Account</a></li>
+              <li>contact@dedoers.com</li>
+              <li>contact@dedoers.com</li>
             </ul>
           </div>
         </div>
@@ -2252,32 +2314,24 @@
     const particles = [];
     for (let i = 0; i < 90; i++) {
       const p = {
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
+        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
         r: Math.random() * 2.5 + 0.5,
-        speedY: -(Math.random() * 0.35 + 0.08),
-        speedX: (Math.random() - 0.5) * 0.2,
+        speedY: -(Math.random() * 0.35 + 0.08), speedX: (Math.random() - 0.5) * 0.2,
         opacity: Math.random() * 0.3 + 0.05,
-        wobble: Math.random() * Math.PI * 2,
-        wobbleSpeed: Math.random() * 0.012 + 0.004,
+        wobble: Math.random() * Math.PI * 2, wobbleSpeed: Math.random() * 0.012 + 0.004,
         isGold: Math.random() > 0.55
       };
       particles.push(p);
     }
-
     const rays = Array.from({ length: 5 }, () => ({
-      x: Math.random() * canvas.width,
-      w: Math.random() * 90 + 30,
-      op: Math.random() * 0.025 + 0.008,
-      speed: Math.random() * 0.0008 + 0.0003,
+      x: Math.random() * canvas.width, w: Math.random() * 90 + 30,
+      op: Math.random() * 0.025 + 0.008, speed: Math.random() * 0.0008 + 0.0003,
       phase: Math.random() * Math.PI * 2
     }));
-
     let t = 0;
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       t += 0.004;
-
       rays.forEach(ray => {
         ray.phase += ray.speed;
         const x = ray.x + Math.sin(ray.phase) * 120;
@@ -2287,12 +2341,9 @@
         grad.addColorStop(1, `rgba(212,168,67,0)`);
         ctx.beginPath();
         ctx.moveTo(x, 0); ctx.lineTo(x + ray.w, 0);
-        ctx.lineTo(x + ray.w * 0.5, canvas.height);
-        ctx.lineTo(x - ray.w * 0.5, canvas.height);
-        ctx.closePath();
-        ctx.fillStyle = grad; ctx.fill();
+        ctx.lineTo(x + ray.w * 0.5, canvas.height); ctx.lineTo(x - ray.w * 0.5, canvas.height);
+        ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
       });
-
       for (let w = 0; w < 4; w++) {
         ctx.beginPath();
         for (let x = 0; x <= canvas.width; x += 8) {
@@ -2302,18 +2353,14 @@
         ctx.strokeStyle = `rgba(212,168,67,${0.018 - w * 0.004})`;
         ctx.lineWidth = 1; ctx.stroke();
       }
-
       particles.forEach(p => {
         p.wobble += p.wobbleSpeed;
-        p.x += p.speedX + Math.sin(p.wobble) * 0.4;
-        p.y += p.speedY;
+        p.x += p.speedX + Math.sin(p.wobble) * 0.4; p.y += p.speedY;
         if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle = p.isGold ? `rgba(212,168,67,${p.opacity})` : `rgba(255,255,255,${p.opacity * 0.4})`;
         ctx.fill();
       });
-
       requestAnimationFrame(draw);
     }
     draw();
@@ -2333,9 +2380,92 @@
     window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', scrollY > 50));
 
     // REVEAL
-    const obs = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.1 });
-    document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el => obs.observe(el));
+    document.body.classList.add('js-ready');
+    const obs = new IntersectionObserver(entries => entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    }), { threshold: 0.05 });
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => obs.observe(el));
+
+    // WAITLIST FORM
+    document.querySelector('.waitlist-form') && document.querySelector('.waitlist-form').addEventListener('submit', function(e) {
+      const btn = this.querySelector('.waitlist-submit');
+      btn.textContent = 'You're on the list ✓';
+      btn.style.background = '#4ade80';
+    });
+
+    // SOCIAL PROOF TOASTS
+    (function() {
+      const events = [
+        { name: 'Tunde', init: 'T', action: 'just hit 10,000 steps today', icon: '👣' },
+        { name: 'Femi', init: 'F', action: 'joined the Chicken Republic Challenge', icon: '🍗' },
+        { name: 'Tolu', init: 'T', action: 'is on a 5-day streak', icon: '🔥' },
+        { name: 'Charles', init: 'C', action: 'just created a new challenge', icon: '⚡' },
+        { name: 'Amaka', init: 'A', action: 'unlocked the Gold Streak badge', icon: '🏅' },
+        { name: 'Emeka', init: 'E', action: 'hit #1 on the leaderboard', icon: '👑' },
+        { name: 'Sade', init: 'S', action: 'walked 15,000 steps before noon', icon: '👣' },
+        { name: 'Chidi', init: 'C', action: 'redeemed a Chicken Republic voucher', icon: '🎁' },
+        { name: 'Ngozi', init: 'N', action: 'joined the Access Bank Challenge', icon: '🏦' },
+        { name: 'Dayo', init: 'D', action: 'is on a 14-day streak', icon: '🏆' },
+        { name: 'Kemi', init: 'K', action: 'invited 3 friends to Doer', icon: '👥' },
+        { name: 'Bola', init: 'B', action: 'just passed 100,000 lifetime steps', icon: '💎' },
+        { name: 'Jide', init: 'J', action: 'completed the Flutterwave 30-Day Grind', icon: '✅' },
+        { name: 'Aisha', init: 'A', action: 'earned her first real reward', icon: '💰' },
+        { name: 'Seun', init: 'S', action: 'hit a personal best — 22,400 steps', icon: '🚀' },
+        { name: 'Nnamdi', init: 'N', action: 'started a group battle in Abuja', icon: '⚔️' },
+        { name: 'Taiwo', init: 'T', action: 'is ranked #3 in Lagos this week', icon: '📊' },
+        { name: 'Ify', init: 'I', action: 'just got the Ignite Streak badge', icon: '🔥' },
+        { name: 'Rotimi', init: 'R', action: 'walked every day this month', icon: '💯' },
+        { name: 'Adaeze', init: 'A', action: 'challenged her run club to a step war', icon: '⚔️' },
+        { name: 'Kunle', init: 'K', action: 'completed his 7-day challenge streak', icon: '✅' },
+        { name: 'Halima', init: 'H', action: 'reached 50,000 total steps', icon: '🎉' },
+        { name: 'Biodun', init: 'B', action: 'just signed up from Port Harcourt', icon: '📍' },
+        { name: 'Zara', init: 'Z', action: 'topped the monthly leaderboard', icon: '🏆' },
+        { name: 'Temi', init: 'T', action: 'logged her morning 8k run', icon: '🏃' },
+      ];
+
+      const container = document.getElementById('toastContainer');
+      let queue = [...events].sort(() => Math.random() - 0.5);
+      let queueIndex = 0;
+      let activeToasts = [];
+      const MAX_VISIBLE = 2;
+
+      function shuffle() { queue = [...events].sort(() => Math.random() - 0.5); queueIndex = 0; }
+      function nextEvent() { if (queueIndex >= queue.length) shuffle(); return queue[queueIndex++]; }
+
+      function showToast() {
+        if (activeToasts.length >= MAX_VISIBLE) return;
+        const ev = nextEvent();
+        const toast = document.createElement('div');
+        toast.className = 'sp-toast';
+        toast.innerHTML = `
+          <div class="sp-avatar">${ev.init}</div>
+          <div class="sp-text">
+            <div class="sp-name">${ev.name}</div>
+            <div class="sp-action">${ev.action}</div>
+          </div>
+          <div class="sp-icon">${ev.icon}</div>
+          <div class="sp-live"></div>
+        `;
+        container.appendChild(toast);
+        activeToasts.push(toast);
+        requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('visible')));
+        const holdTime = 3800 + Math.random() * 1500;
+        setTimeout(() => {
+          toast.classList.add('hiding');
+          toast.classList.remove('visible');
+          setTimeout(() => { toast.remove(); activeToasts = activeToasts.filter(t => t !== toast); }, 380);
+        }, holdTime);
+      }
+
+      setTimeout(() => {
+        showToast();
+        function scheduleNext() {
+          const delay = 2200 + Math.random() * 2800;
+          setTimeout(() => { showToast(); scheduleNext(); }, delay);
+        }
+        scheduleNext();
+      }, 2000);
+    })();
   </script>
 </body>
-
 </html>
