@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a0a">
+<title>Join on Doer</title>
+<style>
+  :root{
+    --black:#0a0a0a;
+    --panel:#161310;
+    --gold:#D4A843;
+    --gold-bright:#F0C868;
+    --text-mid:#b8b0a0;
+    --text-dim:#726b5e;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    height:100%;
+    background:var(--black);
+    color:#f5f1e8;
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .card{
+    width:100%;
+    max-width:380px;
+    padding:40px 28px;
+    text-align:center;
+  }
+  .logo{
+    width:56px; height:56px;
+    border-radius:16px;
+    background:linear-gradient(135deg, var(--gold), #8a651f);
+    margin:0 auto 24px;
+  }
+  h1{
+    font-size:20px;
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  p{
+    color:var(--text-mid);
+    font-size:14px;
+    line-height:1.5;
+  }
+  .spinner{
+    width:22px; height:22px;
+    margin:24px auto 0;
+    border-radius:50%;
+    border:2.5px solid rgba(212,168,67,0.25);
+    border-top-color:var(--gold);
+    animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .fallback{
+    display:none;
+    margin-top:28px;
+  }
+  .fallback.visible{ display:block; }
+  .btn{
+    display:inline-block;
+    text-decoration:none;
+    background:var(--gold-bright);
+    color:#1a1710;
+    font-weight:700;
+    font-size:14.5px;
+    padding:14px 28px;
+    border-radius:14px;
+  }
+  .note{
+    margin-top:14px;
+    font-size:12px;
+    color:var(--text-dim);
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo"></div>
+  <h1 id="title">Opening Doer&hellip;</h1>
+  <p id="subtitle">Hang tight, we're taking you to the app.</p>
+  <div class="spinner" id="spinner"></div>
+
+  <div class="fallback" id="fallback">
+    <a class="btn" id="storeLink" href="#">Get Doer</a>
+    <p class="note" id="fallbackNote"></p>
+  </div>
+</div>
+
+<script>
+  // Doer invite redirect page — smart link for group/challenge invite
+  // shares. No server-side routing here (GitHub Pages static hosting), so
+  // the target is passed as query params: ?type=group|challenge&code=XXXX.
+  // If Doer is installed, the custom-scheme attempt below opens it
+  // directly; otherwise this falls back to the right app store after a
+  // short timeout, per platform.
+
+  var params = new URLSearchParams(window.location.search);
+  var type = params.get('type') === 'challenge' ? 'challenge' : 'group';
+  var code = params.get('code') || '';
+
+  var PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.dedoers.doer';
+  // Doer isn't live on the iOS App Store yet — set this once it is.
+  var APP_STORE_URL = null;
+
+  var ua = navigator.userAgent || '';
+  var isIOS = /iPhone|iPad|iPod/i.test(ua);
+  var isAndroid = /Android/i.test(ua);
+
+  var titleEl = document.getElementById('title');
+  var subtitleEl = document.getElementById('subtitle');
+  var spinnerEl = document.getElementById('spinner');
+  var fallbackEl = document.getElementById('fallback');
+  var storeLinkEl = document.getElementById('storeLink');
+  var fallbackNoteEl = document.getElementById('fallbackNote');
+
+  function showFallback() {
+    spinnerEl.style.display = 'none';
+    fallbackEl.classList.add('visible');
+
+    if (isIOS) {
+      titleEl.textContent = "Doer isn't on iOS yet";
+      subtitleEl.textContent = 'The iOS app is coming soon — for now, open this link on an Android phone to join.';
+      storeLinkEl.style.display = 'none';
+      fallbackNoteEl.textContent = '';
+      return;
+    }
+
+    titleEl.textContent = "Don't have Doer yet?";
+    subtitleEl.textContent = 'Get the app, then tap this link again to join.';
+    storeLinkEl.href = PLAY_STORE_URL;
+    fallbackNoteEl.textContent = '';
+  }
+
+  if (!code) {
+    titleEl.textContent = 'Invalid invite link';
+    subtitleEl.textContent = 'This link is missing its invite code.';
+    spinnerEl.style.display = 'none';
+  } else if (!isIOS && !isAndroid) {
+    // Desktop / unknown UA — a custom scheme has nothing to open here.
+    titleEl.textContent = 'Open this on your phone';
+    subtitleEl.textContent = 'This invite link opens the Doer app — open it on your iPhone or Android phone instead.';
+    spinnerEl.style.display = 'none';
+  } else {
+    var deepLink = 'com.dedoers.doer://' + (type === 'challenge' ? 'join-challenge' : 'join') + '/' + encodeURIComponent(code);
+
+    // If the app opens, the browser tab backgrounds and this timeout never
+    // fires (page visibility stops JS timers on most mobile browsers).
+    var fallbackTimer = setTimeout(showFallback, 1800);
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) clearTimeout(fallbackTimer);
+    });
+
+    window.location.href = deepLink;
+  }
+</script>
+
+</body>
+</html>
